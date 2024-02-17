@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.no-blue-link {
+    color: black !important; /* Use the color of its parent element */
+    text-decoration: underline !important; /* Add underline style */
+  }

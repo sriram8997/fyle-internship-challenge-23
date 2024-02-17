@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ApiService } from './services/api.service';
 
 @Component({
@@ -7,9 +7,7 @@ import { ApiService } from './services/api.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit{
-  constructor(
-    private apiService: ApiService
-  ) {}
+  private apiService = inject(ApiService)
 
   ngOnInit() {
     this.apiService.getUser('johnpapa').subscribe(console.log);

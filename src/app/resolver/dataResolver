@@ -1,0 +1,28 @@
+import { Injectable, inject } from '@angular/core';
+import { ActivatedRoute, ActivatedRouteSnapshot, Resolve, ResolveFn, RouterStateSnapshot } from '@angular/router';
+import { Observable, filter, take } from 'rxjs';
+import {ApiService} from '../services/api.service'
+
+
+@Injectable({
+  providedIn: 'root'
+})
+// export class DataResolver implements ResolveFn<any> {
+
+//  private route = inject(ActivatedRoute);
+
+//   resolve(route: ActivatedRouteSnapshot): Observable<any> {
+//     const userName = route.params.userName;
+//     return this.apiservice.getUser(userName); 
+//   }
+// }
+
+
+export const DataResolver: ResolveFn<any> = (
+    route: ActivatedRouteSnapshot,
+   apiservice:any = inject(ApiService)
+  ): Observable<any> => apiservice.getUser(route.params.get('userName'))
+    .pipe(
+      filter<any>((post: any) => !!post),
+      take(1)
+    );
