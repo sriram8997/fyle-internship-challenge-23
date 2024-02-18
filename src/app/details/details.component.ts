@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-details',
   templateUrl: './details.component.html',
@@ -12,6 +13,11 @@ export class DetailsComponent implements OnInit {
   loading:any;
   image:any;
   user:any;
+  repostriesData: any;
+  pages: any = [];
+  currentpage: number = 1;
+  dataList: any = [];
+search: string = '';
 
 constructor(private route : Router, private router : ActivatedRoute, private apiservice : ApiService){}
 ngOnInit(): void {
@@ -26,14 +32,73 @@ if(userName != null){
   });
 }
 public getRepostryDetails(githubUsername:string) {
-  this.apiservice.getUser(githubUsername).subscribe((data)=>{
-    this.loading = false;
-this.userDetails = data;
-  });
-  this.apiservice.getdata().subscribe((data)=>{
-console.log(data,"repo")
+    this.apiservice.getUser(githubUsername).subscribe((data)=>{
+      if (data) {
+        this.userDetails = data;        
+        this.loading = false;    
+        if (this.userDetails) {      
+         this.getRepostries();
+        }
+      }
+  }); 
+}
+public getRepostries() {
+  this.apiservice.getdata(this.userDetails.repos_url).subscribe((data)=>{
+    this.dataList = data;
+    let pageCount = this.dataList.length / 10;    
+    this.pages = [];
+    pageCount = pageCount % 1 === 0 ? pageCount : Math.floor(pageCount) + 1;
+      for (let index = 0; index < pageCount; index++) {
+        const element = index+1;      
+        this.pages.push(element);
+     }
+         this.loadDetails(this.dataList.slice(0, 10));  
   });
 }
+
+switchPage(pageNumber: number){
+  this.currentpage = pageNumber;  
+  this.loadDetails(this.dataList.slice((this.currentpage*10)-9, (this.currentpage*10)-1));
+}
+
+loadDetails(dataArray:any[]){
+  this.repostriesData = [...dataArray];
+}
+
+searchData() {    
+if (this.search !== '' && this.search !== null) {  
+  let search_data = this.dataList.filter((item: any) => {
+    if (item.name.toLowerCase().includes(this.search)) {
+        return item.name.toLowerCase().startsWith(this.search);
+    }
+    return false;
+});
+  let pageCount = search_data.length / 10;    
+  this.pages = []
+    pageCount = pageCount % 1 === 0 ? pageCount : Math.floor(pageCount) + 1;
+      for (let index = 0; index < pageCount; index++) {
+        const element = index+1;      
+        this.pages.push(element);
+     }
+      this.loadDetails(search_data.slice(0, 10));  
+
+} else{
+  this.getRepostries()
+}
+}
+previousPage(){
+  if (this.currentpage > 1) {
+  this.currentpage -= 1;  
+  }
+  this.loadDetails(this.dataList.slice((this.currentpage*10)-9, (this.currentpage*10)-1));
+}
+nextPage() {
+  if (this.currentpage < this.pages.length) {
+    this.currentpage += 1;
+  }
+  this.loadDetails(this.dataList.slice((this.currentpage*10)-9, (this.currentpage*10)-1));
+}
+
 openFileUpload() {
   const fileInput = document.getElementById('user') as HTMLInputElement;
   fileInput.click();
@@ -42,19 +107,15 @@ openFileUpload() {
 
 getImage(event: any) {
   const selectedFile = event.target.files[0];
-  console.log(selectedFile, "Selected File");
-
   if (selectedFile) {
     const reader = new FileReader();
 
     reader.onload = (e: any) => {
-      console.log("FileReader onload event triggered.");
-      console.log(e, "FileReader event");
       const previewImg = document.getElementById('preview_img') as HTMLImageElement;
       previewImg.src = e.target.result;
     };
 
-    reader.readAsDataURL(selectedFile); // Read the file as a URL representing the file's data.
+    reader.readAsDataURL(selectedFile); 
   }
 }
 

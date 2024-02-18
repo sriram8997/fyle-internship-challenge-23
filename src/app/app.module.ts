@@ -16,7 +16,6 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     AppComponent,
     DetailsComponent,
     AuthenticationComponent,
-
   ],
   imports: [
     BrowserModule,
