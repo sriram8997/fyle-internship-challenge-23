@@ -1,0 +1,8 @@
+/* Hide the edit icon by default and show it when hovering over the image */
+.relative > div {
+  opacity: 0;
+}
+
+.relative:hover > div {
+  opacity: 100;
+}
